@@ -1,0 +1,73 @@
+[[package]]
+category = "main"
+description = "ASGI specs, helper code, and adapters"
+name = "asgiref"
+optional = false
+python-versions = ">=3.8"
+version = "3.8.1"
+
+[package.dependencies]
+[package.dependencies.typing-extensions]
+python = "<3.11"
+version = ">=4"
+
+[package.extras]
+tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
+
+[[package]]
+category = "main"
+description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+name = "django"
+optional = false
+python-versions = ">=3.10"
+version = "5.0.6"
+
+[package.dependencies]
+asgiref = ">=3.7.0,<4"
+sqlparse = ">=0.3.1"
+tzdata = "*"
+
+[package.extras]
+argon2 = ["argon2-cffi (>=19.1.0)"]
+bcrypt = ["bcrypt"]
+
+[[package]]
+category = "main"
+description = "A non-validating SQL parser."
+name = "sqlparse"
+optional = false
+python-versions = ">=3.8"
+version = "0.5.0"
+
+[package.extras]
+dev = ["build", "hatch"]
+doc = ["sphinx"]
+
+[[package]]
+category = "main"
+description = "Backported and Experimental Type Hints for Python 3.8+"
+marker = "python_version < \"3.11\""
+name = "typing-extensions"
+optional = false
+python-versions = ">=3.8"
+version = "4.12.0"
+
+[[package]]
+category = "main"
+description = "Provider of IANA time zone data"
+marker = "sys_platform == \"win32\""
+name = "tzdata"
+optional = false
+python-versions = ">=2"
+version = "2024.1"
+
+[metadata]
+content-hash = "7999c1d6996c38cc6284f18b30f51cb09ee8823d7bb96ed2d927820537b808de"
+python-versions = "^3.10"
+
+[metadata.files]
+asgiref = []
+django = []
+sqlparse = []
+typing-extensions = []
+tzdata = []
