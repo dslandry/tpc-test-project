@@ -1,11 +1,27 @@
 from django.urls import path
 
-from .views import OrderDetail, OrderList, ProductList, ProfileDetail, payment_webhook
+from .views import (
+    EmailVerificationView,
+    OrderDetail,
+    OrderList,
+    ProductList,
+    ProfileDetail,
+    health,
+    payment_webhook,
+    signup,
+)
 
 urlpatterns = [
-    path("products/", ProductList.as_view(), name="product-list"),
-    path("orders/", OrderList.as_view(), name="order-list"),
-    path("profile/", ProfileDetail.as_view(), name="profile-detail"),
-    path("orders/<int:pk>/", OrderDetail.as_view(), name="order-detail"),
-    path("payment-webhook/", payment_webhook, name="payment-webhook"),
+    path("health/", health),
+    path("signup/", signup),
+    path(
+        "verify-email/<str:token>/",
+        EmailVerificationView.as_view(),
+        name="email-verify",
+    ),
+    path("products/", ProductList.as_view()),
+    path("orders/", OrderList.as_view()),
+    path("profile/", ProfileDetail.as_view()),
+    path("orders/<int:pk>/", OrderDetail.as_view()),
+    path("payment-webhook/", payment_webhook),
 ]

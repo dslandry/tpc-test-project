@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -7,6 +9,13 @@ class Profile(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
+    confirmed_email = models.BooleanField(default=False)
+    verification_token = models.UUIDField(
+        default=uuid.uuid4,
+        null=True,
+        editable=False,
+        unique=True,
+    )
 
     def __str__(self):
         return f"Profile of {self.user.username}"
