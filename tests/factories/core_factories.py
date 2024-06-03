@@ -37,7 +37,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Order
 
-    user = factory.SubFactory(UserFactory)
+    client = factory.SubFactory(ProfileFactory)
     product = factory.SubFactory(ProductFactory)
     quantity = factory.Faker("pyint", min_value=1, max_value=10)
     status = factory.Faker(

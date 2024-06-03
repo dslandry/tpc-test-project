@@ -2,6 +2,8 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from djmoney.models.fields import MoneyField
+from moneyed import Currency
 
 
 class Profile(models.Model):
@@ -18,14 +20,14 @@ class Profile(models.Model):
     )
 
     def __str__(self):
-        return f"Profile of {self.user.username}"
+        return f"Profile: {self.user.username}"
 
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveIntegerField()
+    stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -39,7 +41,7 @@ class Order(models.Model):
         ("delivered", "Delivered"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    client = models.ForeignKey(Profile, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")

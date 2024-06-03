@@ -9,9 +9,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("user", "product", "quantity", "status", "created_at")
+    list_display = ("client", "product", "quantity", "status", "created_at")
     list_filter = ("status", "created_at")
-    search_fields = ("user__username", "product__name")
+    search_fields = ("client__user__username", "product__name")
 
 
 class ProfileAdmin(admin.ModelAdmin):

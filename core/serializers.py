@@ -8,7 +8,7 @@ from django.db.models import F, Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from core.exceptions import UserEmailConflict
+from core.exceptions import ProductOutOfStock, UserEmailConflict
 
 from .models import Order, Product, Profile
 
@@ -40,9 +40,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects,
+        required=True,
+    )
+
+    def create(self, validated_data):
+        if validated_data["quantity"] > validated_data["product"].stock:
+            raise ProductOutOfStock()
+        with transaction.atomic():
+
+            order = Order.objects.create(
+                client=self.context["request"].user.profile, **validated_data
+            )
+            validated_data["product"].stock -= validated_data["quantity"]
+            validated_data["product"].save()
+        return order
+
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = ["product", "quantity"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -120,3 +138,9 @@ class SignUpSerializer(serializers.ModelSerializer):
             user = User.objects.create_user(username, **user_data)
             profile = Profile.objects.create(user=user, **validated_data)
         return profile
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "description", "price", "created_at", "updated_at"]

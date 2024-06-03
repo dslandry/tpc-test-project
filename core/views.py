@@ -1,10 +1,9 @@
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, serializers, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,9 +19,16 @@ from .serializers import (
 
 
 class ProductList(generics.ListCreateAPIView):
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = permissions.IsAdminUser
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAuthenticatedOrReadOnly()]
+        return [permissions.IsAdminUser()]
 
 
 class OrderList(generics.ListCreateAPIView):
@@ -30,8 +36,8 @@ class OrderList(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def get_queryset(self):
+        return Order.objects.filter(client__user__id=self.request.user.pk)
 
 
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -49,7 +55,20 @@ class ProfileDetail(generics.RetrieveUpdateAPIView):
         return self.request.user.profile
 
 
+class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get_permissions(self):
+        if self.request.method in ["GET"]:
+            permission_classes = [permissions.IsAuthenticated]
+        elif self.request.method in ["PUT", "PATCH", "DELETE"]:
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def payment_webhook(request):
     order_id = request.data.get("order_id")
     payment_status = request.data.get("payment_status")
@@ -60,11 +79,13 @@ def payment_webhook(request):
             order.status = "confirmed"
             order.save()
             return Response({"status": "success"}, status=status.HTTP_200_OK)
-        else:
+        elif payment_status != "failed":
             return Response(
                 {"status": "failed", "error": "Invalid payment status"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        else:
+            return Response({"status": "success"}, status=status.HTTP_200_OK)
     except Order.DoesNotExist:
         return Response(
             {"status": "failed", "error": "Order not found"},
@@ -73,14 +94,14 @@ def payment_webhook(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def health(request):
     return Response(status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
 @ensure_csrf_cookie
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def signup(request):
 
     serializer = SignUpSerializer(data=request.data)
@@ -95,7 +116,7 @@ def signup(request):
     return Response(status=status.HTTP_201_CREATED)
 
 
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 class EmailVerificationView(APIView):
     def get(self, request, token):
         user_profile = Profile.objects.filter(verification_token=token).first()
