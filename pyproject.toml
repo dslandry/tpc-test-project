@@ -18,3 +18,14 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "factory-boy>=3.3.0",
+    "pytest>=8.2.1",
+    "pytest-django>=4.8.0",
+]
+
+[tool.pytest.ini_options]
+    DJANGO_SETTINGS_MODULE = "tpc_test_project.settings"
+    python_files = ["tests.py", "test_*.py", "*_tests.py"]
