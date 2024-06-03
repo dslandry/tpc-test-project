@@ -81,6 +81,12 @@ class AuthenticationTestCase(TestCase):
         ProfileFactory(user__email="user@test.com")
         # Make GET request with invalid token
         response = self.client.get(f"/api/verify-email/{uuid.uuid4()}/")
+        assert response.status_code == 400
 
-        # Ensure status code is 400 (Bad Request)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_fetch_user_profile_successful(self):
+        profile = ProfileFactory()
+        self.client.login(username=profile.user.username, password="password")
+        response = self.client.get(f"/api/profile/")
+        assert response.status_code == 200
+        assert response.data["id"] == profile.id
+        self.client.logout()
