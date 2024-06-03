@@ -66,6 +66,7 @@ class TestOrder(APITestCase):
         assert self.order.status == "confirmed"
 
     def test_webhook_updates_pending_order_on_payment_failed(self):
+        self.order.refresh_from_db()
         data = {
             "order_id": self.order.id,
             "payment_status": "failed",

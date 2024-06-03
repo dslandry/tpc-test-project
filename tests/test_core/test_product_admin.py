@@ -3,12 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from tests.factories.core_factories import (
-    OrderFactory,
-    ProductFactory,
-    ProfileFactory,
-    UserFactory,
-)
+from tests.factories.core_factories import ProductFactory, ProfileFactory, UserFactory
 
 
 class ProductAdminTestCase(APITestCase):

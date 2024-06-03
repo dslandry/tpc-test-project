@@ -75,17 +75,15 @@ def payment_webhook(request):
 
     try:
         order = Order.objects.get(id=order_id)
-        if payment_status == "confirmed":
-            order.status = "confirmed"
-            order.save()
-            return Response({"status": "success"}, status=status.HTTP_200_OK)
-        elif payment_status != "failed":
+        if payment_status not in ["confirmed", "failed"]:
             return Response(
                 {"status": "failed", "error": "Invalid payment status"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            return Response({"status": "success"}, status=status.HTTP_200_OK)
+        if payment_status == "confirmed":
+            order.status = "confirmed"
+            order.save()
+        return Response({"status": "success"}, status=status.HTTP_200_OK)
     except Order.DoesNotExist:
         return Response(
             {"status": "failed", "error": "Order not found"},
